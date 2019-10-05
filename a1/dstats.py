@@ -20,10 +20,10 @@ avgNumOfReviews = city_data['review_count'].mean()
 avgNumOfReviewsBus = city_restaurants['review_count'].mean()
 
 print('numOfBus: {}\n'
-      'avgStars: {}\n'
+      'avgStars: {:.2f}\n'
       'numOfRestaurants: {}\n'
-      'avgStarsRestaurants: {}\n'
-      'avgNumOfReviews: {}\n'
-      'avgNumOfReviewsBus: {}'
+      'avgStarsRestaurants: {:.2f}\n'
+      'avgNumOfReviews: {:.2f}\n'
+      'avgNumOfReviewsBus: {:.2f}'
       .format(numOfBus, avgStars, numOfRestaurants, avgStarsRestaurants
               , avgNumOfReviews, avgNumOfReviewsBus))
