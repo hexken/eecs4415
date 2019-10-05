@@ -27,10 +27,10 @@ for s in restaurantCategoryDist.iteritems():
     print('{}:{:0}'.format(s[0], s[1]))
 
 # create DataFrame to hold review counts and avg stars
-zeroes = restaurantCategoryDist * 0
-#review_count = restaurantCategoryDist * 0
-restaurantReviewDist = pd.concat([zeroes, zeroes], axis=1)
-restaurantReviewDist.columns= ['review_count', 'avg_stars']
+#zeroes = restaurantCategoryDist * 0
+#restaurantReviewDist = pd.concat([zeroes, zeroes], axis=1)
+#restaurantReviewDist.columns= ['review_count', 'avg_stars']
+restaurantReviewDist = pd.DataFrame(index=restaurantCategoryDist.index, columns=['review_count', 'avg_stars'])
 
 # fill the DataFrame
 i = 0
@@ -47,7 +47,7 @@ restaurantReviewDist = restaurantReviewDist.sort_values(by=['review_count'], asc
 print('\nrestaurantReviewDist:')
 print('category:#reviews:avg_stars')
 for s in restaurantReviewDist.iterrows():
-    print('{}:{}:{:0.2f}'.format(s[0], int(s[1][0]), s[1][1]))
+    print('{}:{}:{:0.2f}'.format(s[0], s[1][0], s[1][1]))
 
 # make a horizontal histogram of the top 10 largest categories, descending
 top10 = restaurantCategoryDist.iloc[0:10]
