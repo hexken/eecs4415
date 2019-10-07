@@ -6,7 +6,7 @@ parser.add_argument('filename', help='file containing the businesses')
 parser.add_argument('city', help='the city to compute statistics for')
 args = parser.parse_args()
 
-data = pd.read_csv(args.filename)
+data = pd.read_csv(args.filename, usecols=['city', 'review_count', 'categories', 'stars'])
 # get DataFrame pertaining to the city
 city_data = data[data['city'] == args.city]
 numOfBus = len(city_data)
