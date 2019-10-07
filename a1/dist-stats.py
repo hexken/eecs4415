@@ -7,7 +7,7 @@ parser.add_argument('filename', help='file containing the businesses')
 parser.add_argument('city', help='the city to compute statistics for')
 args = parser.parse_args()
 
-data = pd.read_csv(args.filename, usecols=['city', 'review_count', 'categories', 'stars'])
+data = pd.read_csv(args.filename)
 # get DataFrame of businesses within the city
 city_data = data[data['city'] == args.city]
 # get DataFrame of businesses within the city that are restaurants
@@ -46,8 +46,8 @@ restaurantReviewDist = restaurantReviewDist.sort_values(by=['review_count'], asc
 # print the review counts and avg stars
 print('\nrestaurantReviewDist:')
 print('category:#reviews:avg_stars')
-for s in restaurantReviewDist.itertuples():
-    print('{}:{}:{:0.2f}'.format(s[0], s[1], s[2]))
+for s in restaurantReviewDist.iterrows():
+    print('{}:{}:{:0.2f}'.format(s[0], s[1][0], s[1][1]))
 
 # make a horizontal histogram of the top 10 largest categories, descending
 top10 = restaurantCategoryDist.iloc[0:10]
