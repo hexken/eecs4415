@@ -14,7 +14,6 @@ users = pd.concat([users['user_id'], users['friends'].str.split(', ')], axis=1)
 # store user_id and list of friends in dict
 friends_dict = pd.Series(users['friends'].values, index=users['user_id']).to_dict()
 # open the file and write the network
-# dict method
 with open('yelp-network.txt', 'w') as f:
     for user in friends_dict.items():
         for friend_id in user[1]:

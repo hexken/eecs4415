@@ -22,7 +22,6 @@ restaurantCategoryDist = categories[~f].value_counts()
 
 # print the categories and their counts
 print('restaurantCategoryDist:')
-print('category:#restaurants:')
 for s in restaurantCategoryDist.iteritems():
     print('{}:{:0}'.format(s[0], s[1]))
 
@@ -41,8 +40,8 @@ for c in restaurantCategoryDist.index:
 restaurantReviewDist = restaurantReviewDist.sort_values(by=['review_count'], ascending=False)
 
 # print the review counts and avg stars
-print('\nrestaurantReviewDist:')
-print('category:#reviews:avg_stars')
+print('-------------------------------------------------------------------\n'
+      'restaurantReviewDist:')
 for s in restaurantReviewDist.itertuples():
     print('{}:{}:{:0.2f}'.format(s[0], s[1], s[2]))
 
