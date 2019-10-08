@@ -27,9 +27,6 @@ for s in restaurantCategoryDist.iteritems():
     print('{}:{:0}'.format(s[0], s[1]))
 
 # create DataFrame to hold review counts and avg stars
-#zeroes = restaurantCategoryDist * 0
-#restaurantReviewDist = pd.concat([zeroes, zeroes], axis=1)
-#restaurantReviewDist.columns= ['review_count', 'avg_stars']
 restaurantReviewDist = pd.DataFrame(index=restaurantCategoryDist.index, columns=['review_count', 'avg_stars'])
 
 # fill the DataFrame
