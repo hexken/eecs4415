@@ -2,19 +2,21 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
 
+# expects name of file containing businesses info, and city to query
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', help='file containing the businesses')
 parser.add_argument('city', help='the city to compute statistics for')
 args = parser.parse_args()
 
-data = pd.read_csv(args.filename, usecols=['city', 'review_count', 'categories', 'stars'])
+# read in only the necessary columns
+df = pd.read_csv(args.filename, usecols=['city', 'review_count', 'categories', 'stars'])
+
 # get DataFrame of businesses within the city
-city_data = data[data['city'] == args.city]
+df = df[df.apply(lambda x: x['city'] == args.city and 'restaurant' in x['categories'].lower(), axis=1)]
 # get DataFrame of businesses within the city that are restaurants
-city_restaurants = city_data[city_data['categories'].str.contains('restaurant', case=False)]
 
 # create one DataFrame of all categories, can have duplicate rows
-categories = city_restaurants['categories'].str.split(';').explode()
+categories = df['categories'].str.split(';').explode()
 
 # remove rows of 'restaurant' or 'food', then count how many rows have each unique value
 f = categories.str.contains(pat=r'restaurants*|food', regex=True, case=False)
@@ -32,8 +34,8 @@ restaurantReviewDist = pd.DataFrame(index=restaurantCategoryDist.index, columns=
 i = 0
 for c in restaurantCategoryDist.index:
     indexes = categories[(categories == c)].index
-    restaurantReviewDist.iloc[i,0] = city_restaurants.loc[indexes]['review_count'].sum()
-    restaurantReviewDist.iloc[i,1] = city_restaurants.loc[indexes]['stars'].mean()
+    restaurantReviewDist.iloc[i, 0] = df.loc[indexes]['review_count'].sum()
+    restaurantReviewDist.iloc[i, 1] = df.loc[indexes]['stars'].mean()
     i += 1
 
 # sort descending by review_counts
@@ -54,5 +56,5 @@ ax.set_yticklabels(top10.index)
 ax.invert_yaxis()  # labels read top-to-bottom
 ax.set_xlabel('Number of restaurants')
 ax.set_title('Number of restaurants per category')
+plt.savefig('top10categories.png')
 plt.show()
-
