@@ -54,4 +54,4 @@ ax.invert_yaxis()  # labels read top-to-bottom
 ax.set_xlabel('Number of restaurants')
 ax.set_title('Number of restaurants per category')
 plt.savefig('top10categories.png')
-plt.show()
+# plt.show()
