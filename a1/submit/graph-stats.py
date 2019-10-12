@@ -9,18 +9,18 @@ args = parser.parse_args()
 # assume edges are bidirectional and no duplicates, as we made in part (c)
 # read line by line, remove newline, split id's, and build a dict with user_id for key and
 # the number of rows a user appears in as value
-data = defaultdict(int)
+d = defaultdict(int)
 with open(args.filename, 'r') as f:
     i = -1
     for i, line in enumerate(f):
         u1, u2 = line.strip().split(' ')
-        data[u1] += 1
-        data[u2] += 1
+        d[u1] += 1
+        d[u2] += 1
     n_edges = i + 1
-    n_nodes = len(data)
+    n_nodes = len(d)
 
 # put data into pandas series, sort by node degree
-data = pd.Series(data)
+data = pd.Series(d)
 data = data.sort_values(ascending=False)
 avgNodeDegree = data.mean()
 # print all the stats
