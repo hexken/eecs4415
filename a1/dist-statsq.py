@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import argparse
 
+# expects name of file containing businesses info, and city to query
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', help='file containing the businesses')
 parser.add_argument('city', help='the city to compute statistics for')

@@ -5,14 +5,14 @@ parser = argparse.ArgumentParser()
 parser.add_argument('filename', help='file containing the users')
 args = parser.parse_args()
 
+# only read in the required columns. I read all of the data initially but the memory
+# occupied get reduced very quickly
 users = pd.read_csv(args.filename, usecols=['user_id', 'friends'])
 
 # get rid of rows that have no friends
 users = users[~users['friends'].str.contains('None')]
-# turn friend string into a list of strings
-users['friends'] = users['friends'].str.split(', ')
-# turn friends list into a dict, with friends as keys
-users['friends'] = users.apply(lambda x : dict.fromkeys(x['friends'], 0), axis=1)
+# turn friends string into a dict, with friends as keys
+users['friends'] = users.apply(lambda x: dict.fromkeys(x['friends'].split(', '), 0), axis=1)
 # store user_id and dict of friends in another dict
 friends_dict = pd.Series(users['friends'].values, index=users['user_id']).to_dict()
 # open the file and write the network

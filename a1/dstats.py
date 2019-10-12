@@ -1,7 +1,6 @@
 import pandas as pd
 import argparse
 
-# expects name of file containing business info and a a city name to query
 parser = argparse.ArgumentParser()
 parser.add_argument('filename', help='file containing the businesses')
 parser.add_argument('city', help='the city to compute statistics for')
@@ -30,5 +29,5 @@ print('numOfBus: {}\n'
       'avgStarsRestaurants: {:.2f}\n'
       'avgNumOfReviews: {:.2f}\n'
       'avgNumOfReviewsBus: {:.2f}'
-      .format(numOfBus, avgStars, numOfRestaurants, avgStarsRestaurants,
-              avgNumOfReviews, avgNumOfReviewsBus))
+      .format(numOfBus, round(avgStars, 2), numOfRestaurants, round(avgStarsRestaurants, 2),
+              round(avgNumOfReviews, 2), round(avgNumOfReviewsBus, 2)))
