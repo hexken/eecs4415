@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 import argparse
 
@@ -11,41 +12,43 @@ args = parser.parse_args()
 df = pd.read_csv(args.filename, usecols=['city', 'review_count', 'categories', 'stars'])
 # only keep rows in the city with 'restaurant' in categories string
 df = df[df.apply(lambda x: x['city'] == args.city and 'restaurant' in x['categories'].lower(), axis=1)]
-
 # create one DataFrame of all categories, can have duplicate rows
-categories = df['categories'].str.split(';').explode()
+data = dict()
 
-# remove rows of 'restaurant' or 'food', then count how many rows have each unique value
-f = categories.str.contains(pat=r'restaurants*|food', regex=True, case=False)
-restaurantCategoryDist = categories[~f].value_counts()
 
-# print the categories and their counts
+# function to pass to df.apply, will fill up the restaurantCategoryDict
+def get_stats(reviews, stars, categories):
+    for c in categories:
+        if c in data:
+            data[c][0] += reviews
+            data[c][1] += stars
+            data[c][2] += 1
+        else:
+            data[c] = np.array([reviews, stars, 1])
+
+
+# fill up the data_dict
+df.apply(lambda x: get_stats(x['review_count'], x['stars'], x['categories'].split(';')), axis=1)
+# Explicitly remove Food and Restaurant
+data.pop('Restaurants', None)
+data.pop('Food', None)
+# overwrite df with the relevant category information
+df = pd.DataFrame.from_dict(data, orient='index', columns=['tot_reviews', 'tot_stars', 'tot_businesses'])
+# sort by total businesses and print category:num of businesses
+restaurantCategoryDist = df.sort_values(by='tot_businesses', ascending=False)
 print('restaurantCategoryDist:')
-for s in restaurantCategoryDist.iteritems():
-    print('{}:{:0}'.format(s[0], s[1]))
+for s in restaurantCategoryDist.itertuples():
+    print('{}:{}'.format(s.Index, int(s.tot_businesses)))
 
-# create DataFrame to hold review counts and avg stars
-restaurantReviewDist = pd.DataFrame(index=restaurantCategoryDist.index, columns=['review_count', 'avg_stars'])
-
-# fill the DataFrame
-i = 0
-for c in restaurantCategoryDist.index:
-    indexes = categories[(categories == c)].index
-    restaurantReviewDist.iloc[i, 0] = df.loc[indexes]['review_count'].sum()
-    restaurantReviewDist.iloc[i, 1] = df.loc[indexes]['stars'].mean()
-    i += 1
-
-# sort descending by review_counts
-restaurantReviewDist = restaurantReviewDist.sort_values(by=['review_count'], ascending=False)
-
-# print the review counts and avg stars
+# sort by review counts and print the category:total reviews:avg stars
+restaurantReviewDist = df.sort_values(by='tot_reviews', ascending=False)
 print('-------------------------------------------------------------------\n'
       'restaurantReviewDist:')
 for s in restaurantReviewDist.itertuples():
-    print('{}:{}:{:0.2f}'.format(s[0], s[1], s[2]))
+    print('{}:{}:{:0.2f}'.format(s.Index, int(s.tot_reviews), round(s.tot_stars / s.tot_businesses, 2)))
 
 # make a horizontal histogram of the top 10 largest categories, descending
-top10 = restaurantCategoryDist.iloc[0:10]
+top10 = restaurantCategoryDist.iloc[0:10, 2]
 plt.rcdefaults()
 fig, ax = plt.subplots()
 ax.barh(top10.index, top10.values, align='center')
@@ -54,4 +57,4 @@ ax.invert_yaxis()  # labels read top-to-bottom
 ax.set_xlabel('Number of restaurants')
 ax.set_title('Number of restaurants per category')
 plt.savefig('top10categories.png')
-# plt.show()
+plt.show()
