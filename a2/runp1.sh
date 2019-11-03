@@ -1,7 +1,17 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+then
+    echo 'No input supplied'
+    exit
+fi
+
+input_file=$1
+
 # clear working directory and hdfs output dirs
-hdfs dfs -rm -r -f /ureducer
-hdfs dfs -rm -r -f /breducer
-hdfs dfs -rm -r -f /treducer
+hdfs dfs -rm -r -f /unigrams
+hdfs dfs -rm -r -f /bigrams
+hdfs dfs -rm -r -f /trigrams
 rm -rf ureducer.txt breducer.txt treducer.txt
 
 hadoop jar /usr/hadoop-3.0.0/share/hadoop/tools/lib/hadoop-streaming-3.0.0.jar \
@@ -9,26 +19,26 @@ hadoop jar /usr/hadoop-3.0.0/share/hadoop/tools/lib/hadoop-streaming-3.0.0.jar \
 -mapper ./umapper.py \
 -file ./ureducer.py \
 -reducer ./ureducer.py \
--input /small_tips.csv \
--output /ureducer
+-input /$input_file \
+-output /unigrams
 
 hadoop jar /usr/hadoop-3.0.0/share/hadoop/tools/lib/hadoop-streaming-3.0.0.jar \
 -file ./bmapper.py \
 -mapper ./bmapper.py \
 -file ./breducer.py \
 -reducer ./breducer.py \
--input /small_tips.csv \
--output /breducer
+-input /$input_file \
+-output /bigrams
 
 hadoop jar /usr/hadoop-3.0.0/share/hadoop/tools/lib/hadoop-streaming-3.0.0.jar \
 -file ./tmapper.py \
 -mapper ./tmapper.py \
 -file ./treducer.py \
 -reducer ./treducer.py \
--input /small_tips.csv \
--output /treducer
+-input /$input_file \
+-output /trigrams
 
 # get results from hdfs
-hdfs dfs -get /ureducer/part* ureducer.txt
-hdfs dfs -get /breducer/part* breducer.txt
-hdfs dfs -get /treducer/part* treducer.txt
+hdfs dfs -get /unigrams/part* unigrams.txt
+hdfs dfs -get /bigrams/part* bigrams.txt
+hdfs dfs -get /trigrams/part* trigrams.txt
