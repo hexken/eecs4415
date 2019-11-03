@@ -1,11 +1,14 @@
 #!/usr/bin/python3
-
+'''
+I'll remove all punctuation and dollar and cents symbols. N-grams are ordered, so (w1,w2) != (w2,w1)
+unless w1=w2. I'm also removing all numbers.
+'''
 import sys
 import csv
 import re
 import string
 
-punc_string = string.punctuation.replace('-', '') + '$' + '¢'
+punc_string = string.punctuation + '$' + '¢'
 reader = csv.reader(sys.stdin, delimiter=',')
 # next(reader)
 for line in reader:
@@ -22,7 +25,7 @@ for line in reader:
     # remove all punctuation
     tip = tip.translate(tip.maketrans('', '', punc_string)).lower()
     # remove words that are all numbers and hyphens
-    words = re.sub(r'([0-9-]+)', '', tip).split()
+    words = re.sub(r'([0-9]+)', '', tip).split()
     # print every word
     for word in words:
         print('{}\t1'.format(word))

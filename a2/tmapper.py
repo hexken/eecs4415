@@ -5,7 +5,7 @@ import csv
 import re
 import string
 
-punc_string = string.punctuation.replace('-', '') + '$' + '¢'
+punc_string = string.punctuation + '$' + '¢'
 reader = csv.reader(sys.stdin, delimiter=',')
 # next(reader)
 for line in reader:
@@ -22,7 +22,7 @@ for line in reader:
     # remove all punctuation
     tip = tip.translate(tip.maketrans('', '', punc_string)).lower()
     # remove words that are all numbers and hyphens
-    words = re.sub(r'([0-9-]+)', '', tip).split()
+    words = re.sub(r'([0-9]+)', '', tip).split()
     # print every three consecutive words
     for i in range(len(words) - 2):
         print('{} {} {}\t1'.format(words[i], words[i + 1], words[i + 2]))
