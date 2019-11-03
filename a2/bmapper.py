@@ -19,7 +19,7 @@ for line in reader:
     tip = line[0]
     # so we can remove all periods without collapsing words like word1...word2
     tip = tip.replace('.', ' ')
-    # remove all puncuation
+    # remove all punctuation
     tip = tip.translate(tip.maketrans('', '', punc_string)).lower()
     # remove words that are all numbers and hyphens
     words = re.sub(r'([0-9-]+)', '', tip).split()
