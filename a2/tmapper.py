@@ -21,8 +21,9 @@ for line in reader:
     tip = tip.replace('.', ' ')
     # remove all punctuation
     tip = tip.translate(tip.maketrans('', '', punc_string)).lower()
-    # remove words that are all numbers and hyphens
-    words = re.sub(r'([0-9]+)', '', tip).split()
-    # print every three consecutive words
+    # remove blocks of characters which are all numbers or those that contain non English alphabet
+    # characters
+    words = re.sub(r'\s*\w*[^\x00-\x7F]+\w*\s*|\b\d*\b', ' ', tip).split()
+    
     for i in range(len(words) - 2):
         print('{} {} {}\t1'.format(words[i], words[i + 1], words[i + 2]))

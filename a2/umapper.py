@@ -1,7 +1,8 @@
 #!/usr/bin/python3
 '''
 I'll remove all punctuation and dollar and cents symbols. N-grams are ordered, so (w1,w2) != (w2,w1)
-unless w1=w2. I'm also removing all numbers.
+unless w1=w2. I'm considering a word as a block of one or more English alphabet characters which may contain
+numbers.
 '''
 import sys
 import csv
@@ -24,8 +25,9 @@ for line in reader:
     tip = tip.replace('.', ' ')
     # remove all punctuation
     tip = tip.translate(tip.maketrans('', '', punc_string)).lower()
-    # remove words that are all numbers and hyphens
-    words = re.sub(r'([0-9]+)', '', tip).split()
-    # print every word
+    # remove blocks of characters which are all numbers or those that contain non English alphabet
+    # characters
+    words = re.sub(r'\s*\w*[^\x00-\x7F]+\w*\s*|\b\d*\b', ' ', tip).split()
+
     for word in words:
         print('{}\t1'.format(word))
