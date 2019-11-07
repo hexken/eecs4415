@@ -9,25 +9,36 @@ import csv
 import re
 import string
 
-punc_string = string.punctuation + '$' + '¢'
-reader = csv.reader(sys.stdin, delimiter=',')
-# next(reader)
-for line in reader:
-    # to skip the header, since line[2] is an int everywhere else
-    try:
-        int(line[2])
-    except ValueError:
-        continue
 
-    # get the tip string
-    tip = line[0]
-    # so we can remove all periods without collapsing words like word1...word2
-    tip = tip.replace('.', ' ')
-    # remove all punctuation
-    tip = tip.translate(tip.maketrans('', '', punc_string)).lower()
-    # remove blocks of characters which are all numbers or those that contain non English alphabet
-    # characters
-    words = re.sub(r'\s*\w*[^\x00-\x7F]+\w*\s*|\b\d*\b', ' ', tip).split()
+def read_input(f):
+    for line in f:
+        yield line
 
-    for word in words:
-        print('{}\t1'.format(word))
+
+def main():
+    punc_string = string.punctuation + '$' + '¢'
+    reader = read_input(csv.reader(sys.stdin, delimiter=','))
+
+    for line in reader:
+        # to skip the header, since line[2] is an int everywhere else
+        try:
+            int(line[2])
+        except ValueError:
+            continue
+
+        # get the tip string
+        tip = line[0]
+        # so we can remove all periods without collapsing words like word1...word2
+        tip = tip.replace('.', ' ')
+        # remove all punctuation
+        tip = tip.translate(tip.maketrans('', '', punc_string)).lower()
+        # remove blocks of characters which are all numbers or those that contain non English alphabet
+        # characters
+        words = re.sub(r'\s*\w*[^\x00-\x7F]+\w*\s*|\b\d*\b', ' ', tip).split()
+
+        for word in words:
+            print('{}\t1'.format(word))
+
+
+if __name__ == '__main__':
+    main()

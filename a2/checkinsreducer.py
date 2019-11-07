@@ -2,21 +2,24 @@
 
 import sys
 
-old_key = None
-count = 0
+import sys
+from itertools import groupby
+from operator import itemgetter
 
-d = {'0': 'Sun', '1': 'Mon', '2': 'Tue', '3': 'Wed', '4': 'Thu', '5': 'Fri', '6': 'Sat'}
-for line in sys.stdin:
-    key, value = line.split('\t')
 
-    if key != old_key:
-        if old_key:
-            # convert the day integers back into strings before printing
-            business_id, day = old_key.split(' ')
-            print('{} {}\t{}'.format(business_id, d[day], count))
-        old_key = key
-        count = 0
-    count = count + int(value)
+def read_mapper_output(f):
+    for line in f:
+        yield line.split('\t')
 
-business_id, day = old_key.split(' ')
-print('{} {}\t{}'.format(business_id, d[day], count))
+
+def main():
+    d = {'0': 'Sun', '1': 'Mon', '2': 'Tue', '3': 'Wed', '4': 'Thu', '5': 'Fri', '6': 'Sat'}
+    data = read_mapper_output(sys.stdin)
+    for current_word, group in groupby(data, itemgetter(0)):
+        total_count = sum(int(count) for current_word, count in group)
+        business_id, day = current_word.split()
+        print('{} {}\t{}'.format(business_id, d[day], total_count))
+
+
+if __name__ == '__main__':
+    main()

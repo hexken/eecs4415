@@ -1,18 +1,21 @@
 #!/usr/bin/python3
 
 import sys
+from itertools import groupby
+from operator import itemgetter
 
-old_key = None
-count = 0
 
-for line in sys.stdin:
-    key, value = line.split('\t')
+def read_mapper_output(f):
+    for line in f:
+        yield line.split('\t')
 
-    if key != old_key:
-        if old_key:
-            print('{}\t{}'.format(old_key, count))
-        old_key = key
-        count = 0
-    count = count + int(value)
 
-print('{}\t{}'.format(old_key, count))
+def main():
+    data = read_mapper_output(sys.stdin)
+    for current_word, group in groupby(data, itemgetter(0)):
+        total_count = sum(int(count) for current_word, count in group)
+        print('{}\t{}'.format(current_word, total_count))
+
+
+if __name__ == '__main__':
+    main()

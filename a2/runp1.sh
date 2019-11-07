@@ -9,10 +9,10 @@ fi
 input_file=$1
 
 # clear working directory and hdfs output dirs
+rm unigrams.txt bigrams.txt trigrams.txt
 hdfs dfs -rm -r -f /unigrams
 hdfs dfs -rm -r -f /bigrams
 hdfs dfs -rm -r -f /trigrams
-rm -rf ureducer.txt breducer.txt treducer.txt
 
 hadoop jar /usr/hadoop-3.0.0/share/hadoop/tools/lib/hadoop-streaming-3.0.0.jar \
 -file ./umapper.py \
