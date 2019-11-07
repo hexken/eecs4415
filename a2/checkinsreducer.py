@@ -1,8 +1,6 @@
 #!/usr/bin/python3
 
 import sys
-
-import sys
 from itertools import groupby
 from operator import itemgetter
 

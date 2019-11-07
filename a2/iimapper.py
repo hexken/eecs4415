@@ -2,8 +2,6 @@
 
 import sys
 import csv
-import re
-import string
 
 
 def read_input(f):
