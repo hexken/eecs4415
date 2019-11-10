@@ -9,7 +9,7 @@ fi
 input_file=$1
 
 # clear working directory and hdfs output dirs
-rm unigrams.txt bigrams.txt trigrams.txt
+rm -rf unigrams.txt bigrams.txt trigrams.txt
 hdfs dfs -rm -r -f /unigrams
 hdfs dfs -rm -r -f /bigrams
 hdfs dfs -rm -r -f /trigrams
