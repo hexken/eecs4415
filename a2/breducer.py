@@ -8,6 +8,7 @@ import sys
 from itertools import groupby
 from operator import itemgetter
 
+
 # generator for input
 def read_mapper_output(f):
     for line in f:
