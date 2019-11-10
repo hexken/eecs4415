@@ -13,7 +13,7 @@ def main():
     reader = read_input(csv.reader(sys.stdin, delimiter=','))
     # next(reader)
     for line in reader:
-        # to skip the header, since line[1] is an int everywhere else
+        # to skip the header, since line[11] is an int everywhere else
         try:
             int(line[11])
         except ValueError:
