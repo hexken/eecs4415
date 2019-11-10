@@ -8,12 +8,12 @@ import sys
 from itertools import groupby
 from operator import itemgetter
 
-
+# generator for input
 def read_mapper_output(f):
     for line in f:
         yield line.split('\t')
 
-
+# just sum the counts for each key
 def main():
     data = read_mapper_output(sys.stdin)
     for current_word, group in groupby(data, itemgetter(0)):

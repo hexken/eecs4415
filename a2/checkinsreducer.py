@@ -9,12 +9,12 @@ import sys
 from itertools import groupby
 from operator import itemgetter
 
-
+# generator for input
 def read_mapper_output(f):
     for line in f:
         yield line.split('\t')
 
-
+# just sum the counts for each key, turn day int back into the day string
 def main():
     d = {'0': 'Sun', '1': 'Mon', '2': 'Tue', '3': 'Wed', '4': 'Thu', '5': 'Fri', '6': 'Sat'}
     data = read_mapper_output(sys.stdin)
