@@ -1,9 +1,13 @@
 #!/usr/bin/python3
-'''
+"""
+bmapper.py
+Ken Tjhia 2019291691
+hexken@my.yorku.ca
+
 I'll remove all punctuation and dollar and cents symbols. N-grams are ordered, so (w1,w2) != (w2,w1)
 unless w1=w2. I'm considering a word as a block of one or more English alphabet characters which may contain
 numbers.
-'''
+"""
 import sys
 import csv
 import re
@@ -42,5 +46,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-

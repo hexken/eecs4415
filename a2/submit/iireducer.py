@@ -1,9 +1,4 @@
 #!/usr/bin/python3
-"""
-breducer.py
-Ken Tjhia 2019291691
-hexken@my.yorku.ca
-"""
 
 import sys
 from itertools import groupby

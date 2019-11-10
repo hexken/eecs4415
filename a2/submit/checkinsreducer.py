@@ -1,9 +1,5 @@
 #!/usr/bin/python3
-"""
-breducer.py
-Ken Tjhia 2019291691
-hexken@my.yorku.ca
-"""
+
 import sys
 from itertools import groupby
 from operator import itemgetter
@@ -15,10 +11,12 @@ def read_mapper_output(f):
 
 
 def main():
+    d = {'0': 'Sun', '1': 'Mon', '2': 'Tue', '3': 'Wed', '4': 'Thu', '5': 'Fri', '6': 'Sat'}
     data = read_mapper_output(sys.stdin)
     for current_word, group in groupby(data, itemgetter(0)):
         total_count = sum(int(count) for current_word, count in group)
-        print('{}\t{}'.format(current_word, total_count))
+        business_id, day = current_word.split()
+        print('{} {}\t{}'.format(business_id, d[day], total_count))
 
 
 if __name__ == '__main__':

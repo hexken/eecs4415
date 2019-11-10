@@ -1,15 +1,10 @@
 #!/usr/bin/python3
-"""
-breducer.py
-Ken Tjhia 2019291691
-hexken@my.yorku.ca
-
+'''
 The strategy is to output tuples of the form <<id, day_num> count>,
 by converting the day strings into integers. This will let
 hadoop sort the keys by ids and day of week, then we will convert the day integers back to
 strings in the reducer.
-"""
-
+'''
 import sys
 import csv
 
