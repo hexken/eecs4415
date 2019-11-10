@@ -14,6 +14,7 @@ import csv
 import re
 import string
 
+
 # generator for input
 def read_input(f):
     for line in f:

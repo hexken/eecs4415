@@ -9,10 +9,12 @@ import sys
 from itertools import groupby
 from operator import itemgetter
 
+
 # generator for input
 def read_mapper_output(f):
     for line in f:
         yield line.rstrip().split('\t')
+
 
 # aggregate business_id's from a particular key into a list, joint and print
 def main():

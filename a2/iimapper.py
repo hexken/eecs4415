@@ -8,6 +8,7 @@ hexken@my.yorku.ca
 import sys
 import csv
 
+
 # generator for input
 def read_input(f):
     for line in f:
