@@ -1,0 +1,99 @@
+"""
+twitter.py
+----------
+To set up a twitter stream
+"""
+import tweepy
+import json
+import sys
+import socket
+
+# my credentials
+# consumer_key = "J4ru00YugoaoNN6lbM6oNSLNh"
+# consumer_secret = "wKUAHw1sMWf2Tcq7Oqqgss82xYEfMFeWTLqaUzgxw1MTLl8Cwq"
+# access_token = "780411082540195840-luqwRvt2WP4caindy0vapZhZIvi8M7J"
+# access_token_secret = "l6Y0tDpdf29MRJMXlXPSyWdjIQhy3da3rKYNrxRSJGRMq"
+
+# Tele's credentials
+consumer_key = "J4ru00YugoaoNN6lbM6oNSLNh"
+consumer_secret = "wKUAHw1sMWf2Tcq7Oqqgss82xYEfMFeWTLqaUzgxw1MTLl8Cwq"
+access_token = "780411082540195840-luqwRvt2WP4caindy0vapZhZIvi8M7J"
+access_token_secret = "l6Y0tDpdf29MRJMXlXPSyWdjIQhy3da3rKYNrxRSJGRMq"
+
+
+class TweetListener(tweepy.StreamListener):
+
+    def on_error(self, status):
+        if status == 420:
+            return False
+
+    # def on_status(self, status):
+    #    print(status)
+
+    def on_data(self, data):
+        """When a tweet is received, forward it"""
+        try:
+            global conn
+
+            # load the tweet JSON, get pure text
+            full_tweet = json.loads(data)
+            tweet_text = full_tweet['text']
+
+            # print the tweet plus a separator
+            print("------------------------------------------")
+            print(tweet_text + '\n')
+
+            # send it to spark
+            conn.send(str.encode(tweet_text + '\n'))
+        except:
+            # handle errors
+            e = sys.exc_info()[0]
+            self.stream
+            print("Error: %s" % e)
+
+        return True
+
+
+class HashTagStream():
+
+    def __init__(self, auth, listener):
+        # setup search terms
+        self.track = ['#trump', '#sanders', '#warren', '#yang', '#biden']
+        self.language = ['en']
+        self.locations = [-180, -90, 180, 90]
+
+        self.stream = tweepy.Stream(auth, listener)
+
+    def start(self):
+        try:
+            self.stream.filter(track=self.track, languages=self.language, locations=self.locations, is_async=True)
+        except KeyboardInterrupt:
+            print('exiting')
+        s.shutdown(socket.SHUT_RD)
+
+
+if __name__ == '__main__':
+    # IP and port of local machine or Docker
+    TCP_IP = socket.gethostbyname(socket.gethostname())  # returns local IP
+    TCP_PORT = 9009
+
+    # setup local connection, expose socket, listen for spark app
+    conn = None
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+    s.bind((TCP_IP, TCP_PORT))
+    s.listen(1)
+    print("Waiting for TCP connection...")
+
+    # if the connection is accepted, proceed
+    conn, addr = s.accept()
+    print("Connected... Starting getting tweets.")
+
+    # authenticate twitter
+    auth = tweepy.OAuthHandler(consumer_key, consumer_secret)
+    auth.set_access_token(access_token, access_token_secret)
+
+    # set up the listener and stream
+    listener = TweetListener()
+    stream = HashTagStream(auth, listener)
+    stream.start()
