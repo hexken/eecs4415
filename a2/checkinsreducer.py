@@ -23,7 +23,7 @@ def main():
     for current_word, group in groupby(data, itemgetter(0)):
         total_count = sum(int(count) for current_word, count in group)
         business_id, day = current_word.split()
-        print('{} {}\t{}'.format(business_id, d[day], total_count))
+        print('{}, {}, {}'.format(business_id, d[day], total_count))
 
 
 if __name__ == '__main__':

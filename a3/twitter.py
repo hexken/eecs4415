@@ -1,7 +1,15 @@
 """
 twitter.py
 ----------
-To set up a twitter stream
+To set up a twitter stream.
+To execute this in a Docker container, do:
+
+        docker run -it -v $PWD:/app --name twitter -p 9009:9009 python bash
+
+    and inside the docker:
+
+        pip install -U git+https://github.com/tweepy/tweepy.git
+        python twitter_app.py
 """
 import tweepy
 import json
@@ -9,16 +17,17 @@ import sys
 import socket
 
 # my credentials
-# consumer_key = "J4ru00YugoaoNN6lbM6oNSLNh"
-# consumer_secret = "wKUAHw1sMWf2Tcq7Oqqgss82xYEfMFeWTLqaUzgxw1MTLl8Cwq"
-# access_token = "780411082540195840-luqwRvt2WP4caindy0vapZhZIvi8M7J"
-# access_token_secret = "l6Y0tDpdf29MRJMXlXPSyWdjIQhy3da3rKYNrxRSJGRMq"
-
-# Tele's credentials
 consumer_key = "J4ru00YugoaoNN6lbM6oNSLNh"
 consumer_secret = "wKUAHw1sMWf2Tcq7Oqqgss82xYEfMFeWTLqaUzgxw1MTLl8Cwq"
 access_token = "780411082540195840-luqwRvt2WP4caindy0vapZhZIvi8M7J"
 access_token_secret = "l6Y0tDpdf29MRJMXlXPSyWdjIQhy3da3rKYNrxRSJGRMq"
+
+
+# Tele's credentials
+# consumer_key = "J4ru00YugoaoNN6lbM6oNSLNh"
+# consumer_secret = "wKUAHw1sMWf2Tcq7Oqqgss82xYEfMFeWTLqaUzgxw1MTLl8Cwq"
+# access_token = "780411082540195840-luqwRvt2WP4caindy0vapZhZIvi8M7J"
+# access_token_secret = "l6Y0tDpdf29MRJMXlXPSyWdjIQhy3da3rKYNrxRSJGRMq"
 
 
 class TweetListener(tweepy.StreamListener):
@@ -48,7 +57,6 @@ class TweetListener(tweepy.StreamListener):
         except:
             # handle errors
             e = sys.exc_info()[0]
-            self.stream
             print("Error: %s" % e)
 
         return True
@@ -66,7 +74,8 @@ class HashTagStream():
 
     def start(self):
         try:
-            self.stream.filter(track=self.track, languages=self.language, locations=self.locations, is_async=True)
+            # self.stream.filter(track=self.track, languages=self.language, locations=self.locations, is_async=True)
+            self.stream.filter(track=['kenneth'], languages=self.language, locations=self.locations, is_async=True)
         except KeyboardInterrupt:
             print('exiting')
         s.shutdown(socket.SHUT_RD)

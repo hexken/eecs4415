@@ -103,7 +103,7 @@ auth.set_access_token(access_token, access_token_secret)
 stream = Stream(auth, listener)
 
 # setup search terms
-track = ['#']
+track = ['#trump']
 language = ['en']
 locations = [-130,-20,100,50]
 
@@ -112,3 +112,4 @@ try:
     stream.filter(track=track, languages=language, locations=locations)
 except KeyboardInterrupt:
     s.shutdown(socket.SHUT_RD)
+
