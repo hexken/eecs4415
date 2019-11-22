@@ -1,15 +1,20 @@
 """
-twitter.py
+twitter_app_A.py
 ----------
-To set up a twitter stream.
+To set up a twitter stream that tracks 5 particular hash tags.
+
 To execute this in a Docker container, do:
 
-        docker run -it -v $PWD:/app --name twitter -p 9009:9009 python bash
+    docker run -it -v $PWD:/app --name twitter -p 9009:9009 python bash
 
-    and inside the docker:
+and inside the docker:
 
-        pip install -U git+https://github.com/tweepy/tweepy.git
-        python twitter_app.py
+pip install -U git+https://github.com/tweepy/tweepy.git
+    python twitter_app.py
+Made for: EECS 4415 - Big Data Systems (York University EECS dept.)
+Modified by: Tilemachos Pechlivanoglou
+Based on: https://www.toptal.com/apache/apache-spark-streaming-twitter
+Original author: Hanee' Medhat
 """
 import tweepy
 import json
@@ -23,14 +28,10 @@ access_token = "780411082540195840-luqwRvt2WP4caindy0vapZhZIvi8M7J"
 access_token_secret = "l6Y0tDpdf29MRJMXlXPSyWdjIQhy3da3rKYNrxRSJGRMq"
 
 
-# Tele's credentials
-# consumer_key = "J4ru00YugoaoNN6lbM6oNSLNh"
-# consumer_secret = "wKUAHw1sMWf2Tcq7Oqqgss82xYEfMFeWTLqaUzgxw1MTLl8Cwq"
-# access_token = "780411082540195840-luqwRvt2WP4caindy0vapZhZIvi8M7J"
-# access_token_secret = "l6Y0tDpdf29MRJMXlXPSyWdjIQhy3da3rKYNrxRSJGRMq"
-
-
 class TweetListener(tweepy.StreamListener):
+    """
+    Listener that will send tweets to a spar
+    """
 
     def on_error(self, status):
         if status == 420:
@@ -53,7 +54,7 @@ class TweetListener(tweepy.StreamListener):
             print(tweet_text + '\n')
 
             # send it to spark
-            conn.send(str.encode(tweet_text + '\n'))
+            conn.send(tweet_text.encode('utf-8'))
         except:
             # handle errors
             e = sys.exc_info()[0]
@@ -66,7 +67,7 @@ class HashTagStream():
 
     def __init__(self, auth, listener):
         # setup search terms
-        self.track = ['#trump', '#sanders', '#warren', '#yang', '#biden']
+        self.track = ['#biden', '#sanders', '#trump',  '#warren', '#yang']
         self.language = ['en']
         self.locations = [-180, -90, 180, 90]
 
@@ -74,8 +75,8 @@ class HashTagStream():
 
     def start(self):
         try:
-            # self.stream.filter(track=self.track, languages=self.language, locations=self.locations, is_async=True)
-            self.stream.filter(track=['kenneth'], languages=self.language, locations=self.locations, is_async=True)
+            self.stream.filter(track=self.track, languages=self.language, locations=self.locations, is_async=True)
+            # self.stream.filter(track=self.track, languages=self.language, is_async=True)
         except KeyboardInterrupt:
             print('exiting')
         s.shutdown(socket.SHUT_RD)
