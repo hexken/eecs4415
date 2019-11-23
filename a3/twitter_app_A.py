@@ -75,8 +75,7 @@ class HashTagStream():
 
     def start(self):
         try:
-            self.stream.filter(track=self.track, languages=self.language, locations=self.locations, is_async=True)
-            # self.stream.filter(track=self.track, languages=self.language, is_async=True)
+            self.stream.filter(track=self.track, is_async=True)
         except KeyboardInterrupt:
             print('exiting')
         s.shutdown(socket.SHUT_RD)
