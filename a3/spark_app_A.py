@@ -31,6 +31,9 @@ from pyspark import Row, SQLContext
 import requests
 import sys
 
+# tags = ['#biden', '#sanders', '#trump', '#warren', '#yang']
+tags = ['#nike', '#reebok', '#adidas', '#lululemon', '#underarmour']
+
 
 # adding the count of each hashtag to its last count
 def aggregate_tags_count(new_values, total_sum):
@@ -90,17 +93,16 @@ if __name__ == '__main__':
     dataStream = ssc.socketTextStream("twitter", 9009)
 
     # the hashtags we are going to count occurrences of
-    monitored_tags = ['#biden', '#sanders', '#trump', '#warren', '#yang']
     # set up initial rdd of (tag, 0) and stream so we can nicely display 0 counts for
     # tags which have not yet occurred.
-    initial_rdd = [(tag, 0) for tag in monitored_tags]
+    initial_rdd = [(tag, 0) for tag in tags]
     initial_rdd = [sc.parallelize(initial_rdd)]
     initial_stream = ssc.queueStream(initial_rdd)
 
     # split each tweet into words
     words = dataStream.flatMap(lambda line: line.split(" "))
     # filter the words to get only hashtags, then map each hashtag to be a pair of (hashtag,1)
-    hashtags = words.filter(lambda w: w.lower() in monitored_tags).map(lambda x: (x.lower(), 1))
+    hashtags = words.filter(lambda w: w.lower() in tags).map(lambda x: (x.lower(), 1))
     hashtags = hashtags.union(initial_stream)
     # adding the count of each hashtag to its last count
     tags_totals = hashtags.updateStateByKey(aggregate_tags_count)

@@ -31,7 +31,8 @@ consumer_key = "J4ru00YugoaoNN6lbM6oNSLNh"
 consumer_secret = "wKUAHw1sMWf2Tcq7Oqqgss82xYEfMFeWTLqaUzgxw1MTLl8Cwq"
 access_token = "780411082540195840-luqwRvt2WP4caindy0vapZhZIvi8M7J"
 access_token_secret = "l6Y0tDpdf29MRJMXlXPSyWdjIQhy3da3rKYNrxRSJGRMq"
-
+# tags = ['#biden', '#sanders', '#trump', '#warren', '#yang']
+tags = ['#nike', '#reebok', '#adidas', '#lululemon', '#underarmour']
 
 class TweetListener(tweepy.StreamListener):
     """
@@ -56,7 +57,7 @@ class TweetListener(tweepy.StreamListener):
 
             # print the tweet plus a separator
             print("------------------------------------------")
-            print(tweet_text + '\n')
+            print(tweet_text)
 
             # send it to spark
             conn.send(tweet_text.encode('utf-8'))
@@ -72,10 +73,7 @@ class HashTagStream():
 
     def __init__(self, auth, listener):
         # setup search terms
-        self.track = ['#biden', '#sanders', '#trump', '#warren', '#yang']
-        self.language = ['en']
-        self.locations = [-180, -90, 180, 90]
-
+        self.track = tags
         self.stream = tweepy.Stream(auth, listener)
 
     def start(self):
