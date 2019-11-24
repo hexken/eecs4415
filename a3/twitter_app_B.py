@@ -32,6 +32,25 @@ consumer_secret = "wKUAHw1sMWf2Tcq7Oqqgss82xYEfMFeWTLqaUzgxw1MTLl8Cwq"
 access_token = "780411082540195840-luqwRvt2WP4caindy0vapZhZIvi8M7J"
 access_token_secret = "l6Y0tDpdf29MRJMXlXPSyWdjIQhy3da3rKYNrxRSJGRMq"
 
+# # the set of hashtags to monitor for each topic
+# drake_tags = ['#drake', '#drizzy', '#teamdrizzy', '#drakequotes', '#teamdrake', '#ovo',
+#               '#champagnepapi']  # , '#', '#', '#'],\
+# katyperry_tags = ['#katyperry', '#katycats'],  # , '#', '#', '#', '#', '#', '#', '#', '#']\
+# taylorswift_tags = ['#taylorswift', '#tswift', '#swifties', '#taylorswift13', '#artistofthedecade',
+#                     '#taylornation', '#taylornation13', '#tayloronamas', '#istandwithtaylor', '#ts1989']
+# beyonce_tags = ['#beyonce', '#beyhive']  # , '#', '#', '#', '#', '#', '#', '#', '#']
+# rihanna_tags = ['#rihanna', '#riri', '#fenty', '#fentybeauty']  # , '#', '#', '#', '#', '#', '#']
+# topic_tags = [drake_tags, katyperry_tags, taylorswift_tags, beyonce_tags, rihanna_tags]
+
+# the set of hashtags to monitor for each topic
+trump_tags = ['#trump', '#trump2020', '#donaldtrump', '#donaldjtrump', '#trumpadministration',
+              '#trumpsupporters', '#impeachtrump', '#impeachmenthearings', '#impeachmentinquiery', '#trump2020landslide']
+sanders_tags = ['#sanders', '#berniesanders', '#sanders2020', '#bernie', '#feelthebern',
+               '#sandersforpresident', '#bernieforpresident', '#bernieinla', '#bernieblackout', '#berniesandersyoubastards']
+yang_tags = ['#yang', '#andrewyang', '#yanggang', '#yang2020', '#andrewyang2020',
+             '#yangforpresident', '#yangmediablackout', '#msnbcfearsyang', '#yanggang2020', '#yangthegoat']
+topic_tags = trump_tags + sanders_tags + yang_tags
+
 
 class TweetListener(tweepy.StreamListener):
     """
@@ -72,15 +91,7 @@ class HashTagStream():
 
     def __init__(self, auth, listener):
         # setup search terms
-        self.dr = ['#drake', '#drizzy', '#teamdrizzy', '#drakequotes', '#teamdrake', '#ovo',
-                      '#champagnepapi']  # , '#', '#', '#']
-        self.kp = ['#katyperry', '#katycats']  # , '#', '#', '#', '#', '#', '#', '#', '#']
-        self.ts = ['#taylorswift', '#tswift', '#swifties', '#taylorswift13', '#artistofthedecade',
-                            '#taylornation', '#taylornation13', '#tayloronamas', '#istandwithtaylor', '#ts1989']
-        self.be = ['#beyonce', '#beyhive']  # , '#', '#', '#', '#', '#', '#', '#', '#']
-        self.ri = ['#rihanna', '#riri', '#fenty', '#fentybeauty']  # , '#', '#', '#', '#', '#', '#']
-        self.track = self.dr + self.kp + self.ts + self.be + self.ri
-
+        self.track = topic_tags
         self.stream = tweepy.Stream(auth, listener)
 
     def start(self):

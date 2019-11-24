@@ -40,16 +40,26 @@ import sys
 nltk.download('vader_lexicon')
 analyzer = SentimentIntensityAnalyzer()
 # the topics
-topics = ['Drake', 'Katy Perry', 'Taylor Swift', 'Beyonce', 'Rihanna']
+# topics = ['Drake', 'Katy Perry', 'Taylor Swift', 'Beyonce', 'Rihanna']
+# # the set of hashtags to monitor for each topic
+# drake_tags = ['#drake', '#drizzy', '#teamdrizzy', '#drakequotes', '#teamdrake', '#ovo',
+#               '#champagnepapi']  # , '#', '#', '#'],\
+# katyperry_tags = ['#katyperry', '#katycats'],  # , '#', '#', '#', '#', '#', '#', '#', '#']\
+# taylorswift_tags = ['#taylorswift', '#tswift', '#swifties', '#taylorswift13', '#artistofthedecade',
+#                     '#taylornation', '#taylornation13', '#tayloronamas', '#istandwithtaylor', '#ts1989']
+# beyonce_tags = ['#beyonce', '#beyhive']  # , '#', '#', '#', '#', '#', '#', '#', '#']
+# rihanna_tags = ['#rihanna', '#riri', '#fenty', '#fentybeauty']  # , '#', '#', '#', '#', '#', '#']
+# topic_tags = [drake_tags, katyperry_tags, taylorswift_tags, beyonce_tags, rihanna_tags]
+
+topics = ['Trump', 'Bernie']
 # the set of hashtags to monitor for each topic
-drake_tags = ['#drake', '#drizzy', '#teamdrizzy', '#drakequotes', '#teamdrake', '#ovo',
-              '#champagnepapi']  # , '#', '#', '#'],\
-katyperry_tags = ['#katyperry', '#katycats'],  # , '#', '#', '#', '#', '#', '#', '#', '#']\
-taylorswift_tags = ['#taylorswift', '#tswift', '#swifties', '#taylorswift13', '#artistofthedecade',
-                    '#taylornation', '#taylornation13', '#tayloronamas', '#istandwithtaylor', '#ts1989']
-beyonce_tags = ['#beyonce', '#beyhive']  # , '#', '#', '#', '#', '#', '#', '#', '#']
-rihanna_tags = ['#rihanna', '#riri', '#fenty', '#fentybeauty']  # , '#', '#', '#', '#', '#', '#']
-topic_tags = [drake_tags, katyperry_tags, taylorswift_tags, beyonce_tags, rihanna_tags]
+trump_tags = ['#trump', '#trump2020', '#donaldtrump', '#donaldjtrump', '#trumpadministration',
+              '#trumpsupporters', '#impeachtrump', '#impeachmenthearings', '#impeachmentinquiery', '#trump2020landslide']
+sanders_tags = ['#sanders', '#berniesanders', '#sanders2020', '#bernie', '#feelthebern',
+               '#sandersforpresident', '#bernieforpresident', '#bernieinla', '#bernieblackout', '#berniesandersyoubastards']
+yang_tags = ['#yang', '#andrewyang', '#yanggang', '#yang2020', '#andrewyang2020',
+             '#yangforpresident', '#yangmediablackout', '#msnbcfearsyang', '#yanggang2020', '#yangthegoat']
+topic_tags = [trump_tags, sanders_tags, yang_tags]
 
 
 # monitored_tags = dr_tags + kp_tags + ts_tags + be_tags + ri_tags
@@ -59,7 +69,7 @@ topic_tags = [drake_tags, katyperry_tags, taylorswift_tags, beyonce_tags, rihann
 
 def aggregate_topic_scores(new_values, old_value):
     if old_value is None:
-        old_value = (0, 0)
+        old_value = (0.0, 0)
     accum_score = sum(v[0] for v in new_values) + old_value[0]
     num_of_tweets = sum(v[1] for v in new_values) + old_value[1]
     return accum_score, num_of_tweets
@@ -90,9 +100,9 @@ def process_rdd(time, rdd):
         # call this method to prepare top 10 hashtags DF and send them
         send_df_to_dashboard(topic_scores_df)
     except:
-        print(traceback.format_exc())
-        # e = sys.exc_info()[0]
-        # print("Error: %s" % e)
+        # print(traceback.format_exc())
+        e = sys.exc_info()[0]
+        print("Error: %s" % e)
 
 
 def send_df_to_dashboard(df):
@@ -119,47 +129,46 @@ def tweet_scorer(tokenized_tweet):
     if len(tweet_topics) == 0:
         return []
 
-    score = analyzer.polarity_scores(''.join(tokenized_tweet))['compound']
+    score = analyzer.polarity_scores(' '.join(tokenized_tweet))['compound']
     return [(topic, (score, 1)) for topic in tweet_topics]
 
 
 if __name__ == '__main__':
-    try:
-        # create spark configuration
-        conf = SparkConf()
-        conf.setAppName("TwitterStreamApp")
-        # create spark context with the above configuration
-        sc = SparkContext(conf=conf)
-        sc.setLogLevel("ERROR")
-        # create the Streaming Context from spark context, interval size 2 seconds
-        ssc = StreamingContext(sc, 2)
-        # setting a checkpoint for RDD recovery (necessary for updateStateByKey)
-        ssc.checkpoint("checkpoint_TwitterApp")
-        # read data from port 9009
-        dataStream = ssc.socketTextStream("twitter", 9009)
+    # create spark configuration
+    conf = SparkConf()
+    conf.setAppName("TwitterStreamApp")
+    # create spark context with the above configuration
+    sc = SparkContext(conf=conf)
+    sc.setLogLevel("ERROR")
+    # create the Streaming Context from spark context, interval size 2 seconds
+    ssc = StreamingContext(sc, 2)
 
-        # collect tweets related to each topic
-        tokenizer = TweetTokenizer(preserve_case=True, reduce_len=False, strip_handles=False)
-        # set up initial rdd of (topic (0, 0)) and stream so we can nicely display
-        # tables/dashboards with all topics populated even when we haven't seen tweets
-        # corresponding to them.
-        initial_rdd = [(topic, (0, 0)) for topic in topics]
-        initial_rdd = [sc.parallelize(initial_rdd)]
-        initial_stream = ssc.queueStream(initial_rdd)
+    # read data from port 9009
+    dataStream = ssc.socketTextStream("twitter", 9009)
 
-        # split each tweet into a list of words using TweetTokenizer
-        tokenized_tweets = dataStream.map(tokenizer.tokenize)
-        # map each tokenized tweet to a list of (topic, score) for each
-        # topic the tweet corresponds to.
-        scores = tokenized_tweets.flatMap(tweet_scorer)
-        scores = scores.union(initial_stream)
-        # accumulate all of the scores and # of tweets for each topic
-        topic_accum_scores = scores.updateStateByKey(aggregate_topic_scores)
-        # do processing for each RDD generated in each interval
-        topic_accum_scores.foreachRDD(process_rdd)
-        # start the streaming computation
-        ssc.start()
-        # wait for the streaming to finish
-        ssc.awaitTermination()
-    except:
-        print(traceback.format_exc())
+    # collect tweets related to each topic
+    tokenizer = TweetTokenizer(preserve_case=True, reduce_len=False, strip_handles=False)
+
+    # set up initial rdd of (topic (0, 0)) and stream so we can nicely display
+    # tables/dashboards with all topics populated even when we haven't seen tweets
+    # corresponding to them.
+    initial_rdd = [(topic, (0.0, 0)) for topic in topics]
+    initial_rdd = [sc.parallelize(initial_rdd)]
+    initial_stream = ssc.queueStream(initial_rdd)
+
+    # split each tweet into a list of words using TweetTokenizer
+    tokenized_tweets = dataStream.map(tokenizer.tokenize)
+    # map each tokenized tweet to a list of (topic, score) for each
+    # topic the tweet corresponds to.
+    scores = tokenized_tweets.flatMap(tweet_scorer)
+    scores = scores.union(initial_stream)
+    # setting a checkpoint for RDD recovery (necessary for updateStateByKey)
+    ssc.checkpoint("checkpoint_TwitterApp")
+    # accumulate all of the scores and # of tweets for each topic
+    topic_accum_scores = scores.updateStateByKey(aggregate_topic_scores)
+    # do processing for each RDD generated in each interval
+    topic_accum_scores.foreachRDD(process_rdd)
+    # start the streaming computation
+    ssc.start()
+    # wait for the streaming to finish
+    ssc.awaitTermination()

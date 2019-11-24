@@ -15,13 +15,13 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>Sentiment Analysis of Popular Music Artists</title>
+    <title>Sentiment Analysis of US Presidential Candidates</title>
     <script src='static/Chart.js'></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
 </head>
 <body>
-<h2>Sentiment Analysis of Popular Music Artists</h2>
+<h2>Sentiment Analysis of US Presidential Candidates</h2>
 <div style="width:700px;height:500px">
     <canvas id="chart"></canvas>
 </div>
@@ -35,7 +35,7 @@
                   	"{{item}}",
                  	{% endfor %}],
         	datasets: [{
-            	label: 'Compound Sentiment (Vader)',
+            	label: 'Average Sentiment (Vader Compound)',
             	data: [{% for item in values %}
      	                 {{item}},
                     	{% endfor %}],
@@ -74,7 +74,13 @@
                 	ticks: {
                     	beginAtZero:true
                 	}
-            	}]
+            	}],
+                xAxes: [{
+	                ticks: {
+	                    min: -1,
+                        max: 1
+                    }
+                }]
         	}
     	}
    });
