@@ -24,7 +24,9 @@
     Further modified by: Ken Tjhia (minor changes)
     For: EECS 4415 Big Data Systems Assignment #3, Part A
 
-    Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.
+    Hutto, C.J. & Gilbert, E.E. (2014).
+    VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text.
+    Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.
 """
 
 from pyspark import SparkConf, SparkContext
@@ -32,7 +34,6 @@ from pyspark.streaming import StreamingContext
 from pyspark import Row, SQLContext
 from nltk.sentiment.vader import SentimentIntensityAnalyzer
 from nltk.tokenize import TweetTokenizer
-import traceback
 import nltk
 import requests
 import sys
@@ -51,15 +52,20 @@ analyzer = SentimentIntensityAnalyzer()
 # rihanna_tags = ['#rihanna', '#riri', '#fenty', '#fentybeauty']  # , '#', '#', '#', '#', '#', '#']
 # topic_tags = [drake_tags, katyperry_tags, taylorswift_tags, beyonce_tags, rihanna_tags]
 
-topics = ['Trump', 'Bernie']
+topics = ['Donald Trump', 'Bernie Sanders', 'Andrew Yang', 'Elizabeth Warren', 'joe Biden']
 # the set of hashtags to monitor for each topic
 trump_tags = ['#trump', '#trump2020', '#donaldtrump', '#donaldjtrump', '#trumpadministration',
-              '#trumpsupporters', '#impeachtrump', '#impeachmenthearings', '#impeachmentinquiery', '#trump2020landslide']
+              '#trumpsupporters', '#impeachtrump', '#impeachmenthearings', '#impeachmentinquiery',
+              '#trump2020landslide']
 sanders_tags = ['#sanders', '#berniesanders', '#sanders2020', '#bernie', '#feelthebern',
-               '#sandersforpresident', '#bernieforpresident', '#bernieinla', '#bernieblackout', '#berniesandersyoubastards']
+                '#votebernie', '#bernieforpresident', '#onlybernie', '#bernieorbust', '#berniesandersyoubastards']
 yang_tags = ['#yang', '#andrewyang', '#yanggang', '#yang2020', '#andrewyang2020',
              '#yangforpresident', '#yangmediablackout', '#msnbcfearsyang', '#yanggang2020', '#yangthegoat']
-topic_tags = [trump_tags, sanders_tags, yang_tags]
+warren_tags = ['#warren', '#warren2020', '#elizabethwarren', '#warrenforpresident', '#teamwarren',
+               '#senwarren', '#warrenmemeteam', '#ewarren', '#elizabethwarren2020', '#pdx4warren']
+biden_tags = ['#biden', '#biden2020', '#joebiden', '#bidenforpresident', '#joebiden2020',
+              '#teambiden', '#teamjoe', '#joe2020', '#bidencrimefamily', '#joe_biden']
+topic_tags = [trump_tags, sanders_tags, yang_tags, warren_tags, biden_tags]
 
 
 # monitored_tags = dr_tags + kp_tags + ts_tags + be_tags + ri_tags

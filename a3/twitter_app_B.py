@@ -44,12 +44,17 @@ access_token_secret = "l6Y0tDpdf29MRJMXlXPSyWdjIQhy3da3rKYNrxRSJGRMq"
 
 # the set of hashtags to monitor for each topic
 trump_tags = ['#trump', '#trump2020', '#donaldtrump', '#donaldjtrump', '#trumpadministration',
-              '#trumpsupporters', '#impeachtrump', '#impeachmenthearings', '#impeachmentinquiery', '#trump2020landslide']
+              '#trumpsupporters', '#impeachtrump', '#impeachmenthearings', '#impeachmentinquiery',
+              '#trump2020landslide']
 sanders_tags = ['#sanders', '#berniesanders', '#sanders2020', '#bernie', '#feelthebern',
-               '#sandersforpresident', '#bernieforpresident', '#bernieinla', '#bernieblackout', '#berniesandersyoubastards']
+                '#votebernie', '#bernieforpresident', '#onlybernie', '#bernieorbust', '#berniesandersyoubastards']
 yang_tags = ['#yang', '#andrewyang', '#yanggang', '#yang2020', '#andrewyang2020',
              '#yangforpresident', '#yangmediablackout', '#msnbcfearsyang', '#yanggang2020', '#yangthegoat']
-topic_tags = trump_tags + sanders_tags + yang_tags
+warren_tags = ['#warren', '#warren2020', '#elizabethwarren', '#warrenforpresident', '#teamwarren',
+               '#senwarren', '#warrenmemeteam', '#ewarren', '#elizabethwarren2020', '#pdx4warren']
+biden_tags = ['#biden', '#biden2020', '#joebiden', '#bidenforpresident', '#joebiden2020',
+              '#teambiden', '#teamjoe', '#joe2020', '#bidencrimefamily', '#joe_biden']
+topic_tags = trump_tags + sanders_tags + yang_tags + warren_tags + biden_tags
 
 
 class TweetListener(tweepy.StreamListener):
