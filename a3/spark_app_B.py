@@ -23,18 +23,46 @@
 
     Further modified by: Ken Tjhia (minor changes)
     For: EECS 4415 Big Data Systems Assignment #3, Part A
+
+    Hutto, C.J. & Gilbert, E.E. (2014). VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text. Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.
 """
 
 from pyspark import SparkConf, SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark import Row, SQLContext
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk.tokenize import TweetTokenizer
+import traceback
+import nltk
 import requests
 import sys
 
+nltk.download('vader_lexicon')
+analyzer = SentimentIntensityAnalyzer()
+# the topics
+topics = ['Drake', 'Katy Perry', 'Taylor Swift', 'Beyonce', 'Rihanna']
+# the set of hashtags to monitor for each topic
+drake_tags = ['#drake', '#drizzy', '#teamdrizzy', '#drakequotes', '#teamdrake', '#ovo',
+              '#champagnepapi']  # , '#', '#', '#'],\
+katyperry_tags = ['#katyperry', '#katycats'],  # , '#', '#', '#', '#', '#', '#', '#', '#']\
+taylorswift_tags = ['#taylorswift', '#tswift', '#swifties', '#taylorswift13', '#artistofthedecade',
+                    '#taylornation', '#taylornation13', '#tayloronamas', '#istandwithtaylor', '#ts1989']
+beyonce_tags = ['#beyonce', '#beyhive']  # , '#', '#', '#', '#', '#', '#', '#', '#']
+rihanna_tags = ['#rihanna', '#riri', '#fenty', '#fentybeauty']  # , '#', '#', '#', '#', '#', '#']
+topic_tags = [drake_tags, katyperry_tags, taylorswift_tags, beyonce_tags, rihanna_tags]
 
-# adding the count of each hashtag to its last count
-def aggregate_tags_count(new_values, total_sum):
-    return sum(new_values) + (total_sum or 0)
+
+# monitored_tags = dr_tags + kp_tags + ts_tags + be_tags + ri_tags
+
+# accumulate the scores and record the number of tweets (for averaging)
+
+
+def aggregate_topic_scores(new_values, old_value):
+    if old_value is None:
+        old_value = (0, 0)
+    accum_score = sum(v[0] for v in new_values) + old_value[0]
+    num_of_tweets = sum(v[1] for v in new_values) + old_value[1]
+    return accum_score, num_of_tweets
 
 
 def get_sql_context_instance(spark_context):
@@ -49,67 +77,89 @@ def process_rdd(time, rdd):
         # Get spark sql singleton context from the current context
         sql_context = get_sql_context_instance(rdd.context)
         # convert the RDD to Row RDD
-        # if not rdd.isEmpty():
-        row_rdd = rdd.map(lambda w: Row(hashtag=w[0], hashtag_count=w[1]))
+        row_rdd = rdd.map(lambda w: Row(topic=w[0], accum_score=w[1][0], num_of_tweets=w[1][1]))
         # create a DF from the Row RDD
-        hashtags_df = sql_context.createDataFrame(row_rdd)
+        topic_accum_scores_df = sql_context.createDataFrame(row_rdd)
+        topic_accum_scores_df.show()
         # Register the dataframe as table
-        hashtags_df.registerTempTable("hashtags")
-        # sort the hashtags by descening number of occerences
-        hashtag_counts_sorted_df = sql_context.sql(
-            "select hashtag, hashtag_count from hashtags order by hashtag_count desc")
-        hashtag_counts_sorted_df.show()
+        topic_accum_scores_df.registerTempTable("topic_scores")
+        # compute the average sentiment (vader compound) for each topic
+        topic_scores_df = sql_context.sql(
+            "select topic, coalesce(accum_score / num_of_tweets, 0) as score from topic_scores")
+        topic_scores_df.show()
         # call this method to prepare top 10 hashtags DF and send them
-        send_df_to_dashboard(hashtag_counts_sorted_df)
+        send_df_to_dashboard(topic_scores_df)
     except:
-        e = sys.exc_info()[0]
-        print("Error: %s" % e)
+        print(traceback.format_exc())
+        # e = sys.exc_info()[0]
+        # print("Error: %s" % e)
 
 
 def send_df_to_dashboard(df):
     # extract the hashtags from dataframe and convert them into array
-    top_tags = [str(t.hashtag) for t in df.select("hashtag").collect()]
+    topic_names = [str(t.topic) for t in df.select("topic").collect()]
     # extract the counts from dataframe and convert them into array
-    tags_count = [p.hashtag_count for p in df.select("hashtag_count").collect()]
+    topic_scores = [p.score for p in df.select("score").collect()]
     # initialize and send the data through REST API
-    url = 'http://172.17.0.1:5001/updateData'
-    request_data = {'label': str(top_tags), 'data': str(tags_count)}
+    url = 'http://localhost:5001/updateData'
+    request_data = {'label': str(topic_names), 'data': str(topic_scores)}
     response = requests.post(url, data=request_data)
 
 
+# assign topics to a tweet. If the tweet corresponds to some topics
+# then compute the sentiment and return a list of (topic, sentiment) pairs
+def tweet_scorer(tokenized_tweet):
+    tweet_topics = []
+    for w in tokenized_tweet:
+        w = w.lower()
+        for i in range(len(topics)):
+            if w in topic_tags[i]:
+                tweet_topics.append(topics[i])
+
+    if len(tweet_topics) == 0:
+        return []
+
+    score = analyzer.polarity_scores(''.join(tokenized_tweet))['compound']
+    return [(topic, (score, 1)) for topic in tweet_topics]
+
+
 if __name__ == '__main__':
-    # create spark configuration
-    conf = SparkConf()
-    conf.setAppName("TwitterStreamApp")
-    # create spark context with the above configuration
-    sc = SparkContext(conf=conf)
-    sc.setLogLevel("ERROR")
-    # create the Streaming Context from spark context, interval size 2 seconds
-    ssc = StreamingContext(sc, 2)
-    # setting a checkpoint for RDD recovery (necessary for updateStateByKey)
-    ssc.checkpoint("checkpoint_TwitterApp")
-    # read data from port 9009
-    dataStream = ssc.socketTextStream("twitter", 9009)
+    try:
+        # create spark configuration
+        conf = SparkConf()
+        conf.setAppName("TwitterStreamApp")
+        # create spark context with the above configuration
+        sc = SparkContext(conf=conf)
+        sc.setLogLevel("ERROR")
+        # create the Streaming Context from spark context, interval size 2 seconds
+        ssc = StreamingContext(sc, 2)
+        # setting a checkpoint for RDD recovery (necessary for updateStateByKey)
+        ssc.checkpoint("checkpoint_TwitterApp")
+        # read data from port 9009
+        dataStream = ssc.socketTextStream("twitter", 9009)
 
-    # the hashtags we are going to count occurrences of
-    monitored_tags = ['#biden', '#sanders', '#trump', '#warren', '#yang']
-    # set up initial rdd of (tag, 0) and stream so we can nicely display 0 counts for
-    # tags which have not yet occurred.
-    initial_rdd = [(tag, 0) for tag in monitored_tags]
-    initial_rdd = [sc.parallelize(initial_rdd)]
-    print(initial_rdd)
-    initial_stream = ssc.queueStream(initial_rdd)
+        # collect tweets related to each topic
+        tokenizer = TweetTokenizer(preserve_case=True, reduce_len=False, strip_handles=False)
+        # set up initial rdd of (topic (0, 0)) and stream so we can nicely display
+        # tables/dashboards with all topics populated even when we haven't seen tweets
+        # corresponding to them.
+        initial_rdd = [(topic, (0, 0)) for topic in topics]
+        initial_rdd = [sc.parallelize(initial_rdd)]
+        initial_stream = ssc.queueStream(initial_rdd)
 
-    # split each tweet into words
-    words = dataStream.flatMap(lambda line: line.split(" "))
-    # filter the words to get only hashtags, then map each hashtag to be a pair of (hashtag,1)
-    hashtags = words.filter(lambda w: w.lower() in monitored_tags).map(lambda x: (x.lower(), 1))
-    hashtags = hashtags.union(initial_stream)
-    # adding the count of each hashtag to its last count
-    tags_totals = hashtags.updateStateByKey(aggregate_tags_count)
-    # do processing for each RDD generated in each interval
-    tags_totals.foreachRDD(process_rdd)
-    # start the streaming computation
-    ssc.start()
-    # wait for the streaming to finish
-    ssc.awaitTermination()
+        # split each tweet into a list of words using TweetTokenizer
+        tokenized_tweets = dataStream.map(tokenizer.tokenize)
+        # map each tokenized tweet to a list of (topic, score) for each
+        # topic the tweet corresponds to.
+        scores = tokenized_tweets.flatMap(tweet_scorer)
+        scores = scores.union(initial_stream)
+        # accumulate all of the scores and # of tweets for each topic
+        topic_accum_scores = scores.updateStateByKey(aggregate_topic_scores)
+        # do processing for each RDD generated in each interval
+        topic_accum_scores.foreachRDD(process_rdd)
+        # start the streaming computation
+        ssc.start()
+        # wait for the streaming to finish
+        ssc.awaitTermination()
+    except:
+        print(traceback.format_exc())

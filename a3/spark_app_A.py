@@ -49,7 +49,6 @@ def process_rdd(time, rdd):
         # Get spark sql singleton context from the current context
         sql_context = get_sql_context_instance(rdd.context)
         # convert the RDD to Row RDD
-        # if not rdd.isEmpty():
         row_rdd = rdd.map(lambda w: Row(hashtag=w[0], hashtag_count=w[1]))
         # create a DF from the Row RDD
         hashtags_df = sql_context.createDataFrame(row_rdd)
@@ -72,7 +71,7 @@ def send_df_to_dashboard(df):
     # extract the counts from dataframe and convert them into array
     tags_count = [p.hashtag_count for p in df.select("hashtag_count").collect()]
     # initialize and send the data through REST API
-    url = 'http://172.17.0.1:5001/updateData'
+    url = 'http://localhost:5001/updateData'
     request_data = {'label': str(top_tags), 'data': str(tags_count)}
     response = requests.post(url, data=request_data)
 
@@ -97,7 +96,6 @@ if __name__ == '__main__':
     # tags which have not yet occurred.
     initial_rdd = [(tag, 0) for tag in monitored_tags]
     initial_rdd = [sc.parallelize(initial_rdd)]
-    print(initial_rdd)
     initial_stream = ssc.queueStream(initial_rdd)
 
     # split each tweet into words

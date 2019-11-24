@@ -2,12 +2,10 @@
 app.py
 ----------
     Python portion of the dashboard app.
-    To be executed on a  Docker host, with the Twitter and Spark apps running in separate Docker containers.
+    To be executed on localhost of the Spark app's container.
     Run with
         python app.py
 
-    The Spark Docker container should have it's localhost set to 172.17.0.1, which
-    this app should be run on.
 
     Made for: EECS 4415 Big Data Systems Assignment #3, Part A
     Modified by: ken Tjhia

@@ -52,7 +52,7 @@ class TweetListener(tweepy.StreamListener):
 
             # load the tweet JSON, get pure text
             full_tweet = json.loads(data)
-            tweet_text = full_tweet['text']
+            tweet_text = full_tweet['text'] + '\n'
 
             # print the tweet plus a separator
             print("------------------------------------------")

@@ -52,11 +52,11 @@ class TweetListener(tweepy.StreamListener):
 
             # load the tweet JSON, get pure text
             full_tweet = json.loads(data)
-            tweet_text = full_tweet['text']
+            tweet_text = full_tweet['text'] + '\n'
 
             # print the tweet plus a separator
             print("------------------------------------------")
-            print(tweet_text + '\n')
+            print(tweet_text)
 
             # send it to spark
             conn.send(tweet_text.encode('utf-8'))
@@ -72,9 +72,14 @@ class HashTagStream():
 
     def __init__(self, auth, listener):
         # setup search terms
-        self.track = ['#biden', '#sanders', '#trump', '#warren', '#yang']
-        self.language = ['en']
-        self.locations = [-180, -90, 180, 90]
+        self.dr = ['#drake', '#drizzy', '#teamdrizzy', '#drakequotes', '#teamdrake', '#ovo',
+                      '#champagnepapi']  # , '#', '#', '#']
+        self.kp = ['#katyperry', '#katycats']  # , '#', '#', '#', '#', '#', '#', '#', '#']
+        self.ts = ['#taylorswift', '#tswift', '#swifties', '#taylorswift13', '#artistofthedecade',
+                            '#taylornation', '#taylornation13', '#tayloronamas', '#istandwithtaylor', '#ts1989']
+        self.be = ['#beyonce', '#beyhive']  # , '#', '#', '#', '#', '#', '#', '#', '#']
+        self.ri = ['#rihanna', '#riri', '#fenty', '#fentybeauty']  # , '#', '#', '#', '#', '#', '#']
+        self.track = self.dr + self.kp + self.ts + self.be + self.ri
 
         self.stream = tweepy.Stream(auth, listener)
 

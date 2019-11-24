@@ -15,13 +15,13 @@
 <html>
 <head>
     <meta charset="utf-8"/>
-    <title>Top Trending Twitter Hashtags</title>
+    <title>Sentiment Analysis of Popular Music Artists</title>
     <script src='static/Chart.js'></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 
 </head>
 <body>
-<h2>Top Trending Twitter Hashtags</h2>
+<h2>Sentiment Analysis of Popular Music Artists</h2>
 <div style="width:700px;height:500px">
     <canvas id="chart"></canvas>
 </div>
@@ -35,7 +35,7 @@
                   	"{{item}}",
                  	{% endfor %}],
         	datasets: [{
-            	label: '# of Mentions',
+            	label: 'Compound Sentiment (Vader)',
             	data: [{% for item in values %}
      	                 {{item}},
                     	{% endfor %}],
