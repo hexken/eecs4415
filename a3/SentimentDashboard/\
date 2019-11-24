@@ -1,0 +1,66 @@
+readme.txt
+--------------------------------
+Both Parts A and B are run in a nearly identical manner. Part B requires an additional command
+at step 4.
+
+1. The current directory structure should be
+    .
+    ├── docker_run_spark.sh
+    ├── docker_run_twitter.sh
+    ├── HashtagsDashboard
+    │   ├── app.py
+    │   ├── static
+    │   │   └── Chart.js
+    │   └── templates
+    │       └── chart.html
+    ├── readme.txt
+    ├── SentimentDashboard
+    │   ├── app.py
+    │   ├── static
+    │   │   └── Chart.js
+    │   └── templates
+    │       └── chart.html
+    ├── spark_app_A.py
+    ├── spark_app_B.py
+    ├── spark_app.py
+    ├── spark-warehouse
+    ├── team.txt
+    ├── twitter_app_A.py
+    ├── twitter_app_B.py
+    └── twitter_app.py
+
+2. Run the script docker_run_twitter.sh, or alternatively you can manually start an appropriate
+docker container with
+
+    docker run -it -v $PWD:/app --name twitter -p 9009:9009 python bash
+
+This will be referred to as the twitter container.
+
+3. Inside the twitter container, install tweepy with
+
+    pip install tweepy
+
+4. In another terminal on the host machine, run the script docker_run_spark.sh, or alternatively
+start an appropriate docker container with
+
+    docker run -it --add-host="localhost:172.17.0.1" -v  $PWD:/app --link twitter:twitter eecsyorku/eecs4415
+
+This will be referred to as the spark container. To run part B, inside the spark container you must
+install the NLTK python library
+
+    pip install nltk
+
+
+5A. In a new terminal on the host machine, run the app.py script in either the HashtagDashboard or
+SentimentDashboard directory, depending on whether you wish to run Part A or B, respectively.
+
+    python script app.py
+
+6A. In the twitter container, navigate to the app directory and run the twitter_app_A.py script
+        
+        python twitter_app_A.py
+
+6A. In the twitter container, navigate to the app directory and run the twitter_app_A.py script
+        
+        python twitter_app_A.py
+

@@ -1,8 +1,8 @@
 """
-    twitter_app_A.py
+    twitter_app_B.py
     ----------
-    This app sets up a twitter stream that tracks 5 particular hash tags. The tweets are sent to
-    a Spark app on port 9009 where they are to be processed by a Spark app.
+    This app sets up a twitter stream that tracks tweets containing 50 hashtags (10 per topic, 5 topic)
+    and send the tweets to a Spark app on port 9009 where they are to be processed by a Spark app.
 
     To execute this in a Docker container, do:
 
@@ -19,7 +19,7 @@
     Original author: Hanee' Medhat
 
     Further modified by: Ken Tjhia (minor changes)
-    For: EECS 4415 Big Data Systems Assignment #3, Part A
+    For: EECS 4415 Big Data Systems Assignment #3, Part B
 """
 import tweepy
 import json

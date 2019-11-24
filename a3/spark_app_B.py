@@ -2,9 +2,10 @@
     spark_app_A.py
     ----------------------------------------------------------------------
     This Spark app connects to a script running on another (Docker) machine
-    on port 9009 that provides a stream of raw tweets text, filteres for a particular set of hashtags.
-    That stream is meant to be read and processed here, where we count the number of occurrences of
-    a particular set of hashtags, display to stdout and send the dataframe to a dashboard app.
+    on port 9009 that provides a stream of raw tweets text, determines which topics each
+    tweet corresponds to (by hashtags), computes the Vader compound sentiment
+    for each tweet and accumulates the scores per topic, then sends  the averages (by number of tweets)
+    to a dashboard on localhost:5001.
     The Twitter and Spark apps are meant to be run in Docker containers.
 
     To execute this in a Docker container, do:
@@ -22,8 +23,9 @@
     Original author: Hanee' Medhat
 
     Further modified by: Ken Tjhia (minor changes)
-    For: EECS 4415 Big Data Systems Assignment #3, Part A
+    For: EECS 4415 Big Data Systems Assignment #3, Part B
 
+    Citations:
     Hutto, C.J. & Gilbert, E.E. (2014).
     VADER: A Parsimonious Rule-based Model for Sentiment Analysis of Social Media Text.
     Eighth International Conference on Weblogs and Social Media (ICWSM-14). Ann Arbor, MI, June 2014.
@@ -52,7 +54,7 @@ analyzer = SentimentIntensityAnalyzer()
 # rihanna_tags = ['#rihanna', '#riri', '#fenty', '#fentybeauty']  # , '#', '#', '#', '#', '#', '#']
 # topic_tags = [drake_tags, katyperry_tags, taylorswift_tags, beyonce_tags, rihanna_tags]
 
-topics = ['Donald Trump', 'Bernie Sanders', 'Andrew Yang', 'Elizabeth Warren', 'joe Biden']
+topics = ['Donald Trump', 'Bernie Sanders', 'Andrew Yang', 'Elizabeth Warren', 'Joe Biden']
 # the set of hashtags to monitor for each topic
 trump_tags = ['#trump', '#trump2020', '#donaldtrump', '#donaldjtrump', '#trumpadministration',
               '#trumpsupporters', '#impeachtrump', '#impeachmenthearings', '#impeachmentinquiery',
@@ -103,7 +105,6 @@ def process_rdd(time, rdd):
         topic_scores_df = sql_context.sql(
             "select topic, coalesce(accum_score / num_of_tweets, 0) as score from topic_scores")
         topic_scores_df.show()
-        # call this method to prepare top 10 hashtags DF and send them
         send_df_to_dashboard(topic_scores_df)
     except:
         # print(traceback.format_exc())
